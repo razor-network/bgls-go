@@ -38,7 +38,6 @@ For reference, the pairing operation on Altbn128 (the slowest operation involved
 BenchmarkPairing-8   	    1000	   1958898 ns/op
 ```
 
-```
 
 - `Signing` ~.22 milliseconds
 - `Signature verification` ~3.1 milliseconds, using two pairings.
