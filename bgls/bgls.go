@@ -8,7 +8,7 @@ import (
 	"math/big"
 	"sync"
 
-	. "github.com/Project-Arda/bgls/curves" // nolint: golint
+	. "github.com/orbs-network/bgls/curves" // nolint: golint
 )
 
 //MultiSig holds set of keys and one message plus signature

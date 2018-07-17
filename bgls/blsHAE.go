@@ -29,7 +29,7 @@ import (
 
 	"golang.org/x/crypto/blake2b"
 
-	. "github.com/Project-Arda/bgls/curves" // nolint: golint
+	. "github.com/orbs-network/bgls/curves" // nolint: golint
 )
 
 // AggregateSignaturesWithHAE aggregates the signatures, using the

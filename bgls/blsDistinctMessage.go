@@ -15,7 +15,7 @@ package bgls
 import (
 	"math/big"
 
-	. "github.com/Project-Arda/bgls/curves" // nolint: golint
+	. "github.com/orbs-network/bgls/curves" // nolint: golint
 )
 
 // DistinctMsgSign creates a signature on a message with a private key, with

@@ -9,12 +9,12 @@ import (
 	"os"
 	"testing"
 
-	. "github.com/Project-Arda/bgls/curves"
+	. "github.com/orbs-network/bgls/curves"
 	"github.com/stretchr/testify/assert"
 )
 
-var curves = []CurveSystem{Altbn128, Bls12}
-var benchmarkCurve = Bls12
+var curves = []CurveSystem{Altbn128}
+var benchmarkCurve = Altbn128
 
 func TestSingleSigner(t *testing.T) {
 	for _, curve := range curves {

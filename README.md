@@ -1,21 +1,20 @@
-# BGLS
-Master: [![Build Status](https://travis-ci.org/Project-Arda/bgls.svg?branch=master)](https://travis-ci.org/Project-Arda/bgls)
-Develop: [![Build Status](https://travis-ci.org/Project-Arda/bgls.svg?branch=develop)](https://travis-ci.org/Project-Arda/bgls)
+# DKG
+Distributed Key Generation for Threshold Signature based on BLS over Alt bn128.
 
-Aggregate and Multi Signatures based on BGLS over Alt bn128 and BLS12-381
+It is meant to be compatible with the precompiled contracts in Ethereum's smart contract language - Solidity.
+
+# BGLS
+Aggregate and Multi Signatures based on BGLS over Alt bn128
 
 This library provides no security against side channel attacks. We provide no security guarantees of this implementation.
 
 ## Design
-The goal of this library is to create an efficient and secure ad hoc aggregate and multi signature scheme. It supports the curves [bls12-381](https://github.com/dis2/bls12) and [alt bn128](https://github.com/ethereum/go-ethereum/tree/master/crypto/bn256). It implements hashing of arbitrary byte data to curve points, the standard BGLS scheme for aggregate signatures, and a custom multi signature scheme.
+The goal of this library is to create an efficient and secure ad hoc aggregate and multi signature scheme. It supports the curve [alt bn128](https://github.com/ethereum/go-ethereum/tree/master/crypto/bn256). It implements hashing of arbitrary byte data to curve points, the standard BGLS scheme for aggregate signatures, and a custom multi signature scheme.
 
 ### Multi Signature
 The multi signature scheme is a modification of the BGLS scheme, where all signatures are on the same message. This allows verification with a constant number of pairing operations, at the cost of being insecure to rogue public key attacks. We have three separate solutions to the rogue public key attack implemented. (Proving knowlege of the secret key, Enforcing that messages are distinct, and performing aggregation with hashed exponents. These are described in Dan Boneh's [recent paper]((https://crypto.stanford.edu/~dabo/pubs/papers/BLSmultisig.html)))
 
 ## Curves
-### Bls12-381
-
-This is the set of curves which zcash is switching too. Its official documentation is located [here](https://github.com/ebfull/pairing/tree/master/src/bls12_381).
 
 ### Alt bn128
 
@@ -38,9 +37,7 @@ For reference, the pairing operation on Altbn128 (the slowest operation involved
 ```
 BenchmarkPairing-8   	    1000	   1958898 ns/op
 ```
-and for Bls12 its:
-```
-BenchmarkPairGT-8               	    1000	   1539918 ns/op
+
 ```
 
 - `Signing` ~.22 milliseconds
@@ -79,8 +76,6 @@ ok  	golang.org/x/crypto/ed25519	5.750s
 ### Hashing
 Currently only hashing to G1 is supported. Hashing to G2 is planned.
 For altbn128, the hashing algorithm is currently try-and-increment, and we support SHA3, Kangaroo twelve, Keccak256, and Blake2b.
-
-For bls12-381, we are using [Fouque-Tibouchi hashing](http://www.di.ens.fr/~fouque/pub/latincrypt12.pdf) using blake2b. This is interoperable with ebfull's repository.
 
 ## Future work
 - Optimize bigint allocations.

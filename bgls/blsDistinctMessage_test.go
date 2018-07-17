@@ -7,7 +7,7 @@ import (
 	"crypto/rand"
 	"testing"
 
-	. "github.com/Project-Arda/bgls/curves" // nolint: golint
+	. "github.com/orbs-network/bgls/curves" // nolint: golint
 	"github.com/stretchr/testify/assert"
 )
 

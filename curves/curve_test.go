@@ -18,7 +18,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var curves = []CurveSystem{Altbn128, Bls12}
+var curves = []CurveSystem{Altbn128}
 
 func TestMarshal(t *testing.T) {
 	for _, curve := range curves {
