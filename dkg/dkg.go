@@ -51,7 +51,8 @@ func GetGroupPublicKey(curve CurveSystem, pubCommitG2 []Point) Point {
 	return AggregatePoints(pubCommitG2)
 }
 
-//VerifyPublicCommitment
+//VerifyPublicCommitment verifies using pairing that a commitment to a secret (x) using
+//a point on G1 (i.e, x*g1) is the same secret on a committed G2 point (i.e, x*g2).
 func VerifyPublicCommitment(curve CurveSystem, pubCommitG1 Point, pubCommitG2 Point) bool {
 	paired, _ := curve.PairingProduct(
 		[]Point{curve.GetG1().Mul(new(big.Int).SetInt64(-1)), pubCommitG1},
