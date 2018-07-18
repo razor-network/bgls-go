@@ -124,6 +124,8 @@ func TestDKGHappyFlow(t *testing.T) {
 		assert.True(t, VerifySingleSignature(curve, groupSig2, groupPk, d),
 			"group signature invalid")
 		assert.True(t, groupSig1.Equals(groupSig2), "group signatures are not equal")
+
+		// TODO add all possible groups
 	}
 }
 

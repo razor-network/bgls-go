@@ -151,8 +151,11 @@ func SignatureReconstruction(curve CurveSystem, sigs []Point, signersIndices []*
 				b.Mul(b, tmp)
 			}
 		}
-		delta[i], _ = big.NewInt(0).DivMod(a, b, big.NewInt(0).Set(q))
+		b.ModInverse(b, q)
+		delta[i] = big.NewInt(0).Mul(a, b)
+		delta[i].Mod(delta[i], q)
 	}
+
 	sigsExp := make([]Point, t1)
 	for i := 0; i < t1; i++ {
 		sigsExp[i] = sigs[i].Mul(delta[i])
