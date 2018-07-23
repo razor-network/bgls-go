@@ -164,11 +164,13 @@ func SignatureReconstruction(curve CurveSystem, sigs []Point, signersIndices []*
 	return AggregatePoints(sigsExp), nil
 }
 
-func encrypt(curve CurveSystem, sk *big.Int, decrypterPk Point, dataToEnc *big.Int) *big.Int {
+//Encrypt encrypts a big integer
+func Encrypt(curve CurveSystem, sk *big.Int, decrypterPk Point, dataToEnc *big.Int) *big.Int {
 	return encryptOrDecrypt(curve, sk, decrypterPk, dataToEnc)
 }
 
-func decrypt(curve CurveSystem, sk *big.Int, encrypterPk Point, dataToDec *big.Int) *big.Int {
+//Decrypt decrypts a big integer
+func Decrypt(curve CurveSystem, sk *big.Int, encrypterPk Point, dataToDec *big.Int) *big.Int {
 	return encryptOrDecrypt(curve, sk, encrypterPk, dataToDec)
 }
 
