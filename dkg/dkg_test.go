@@ -11,17 +11,27 @@ import (
 )
 
 var curves = []CurveSystem{Altbn128}
-var threshold = 2
-var n = 5
+var threshold = 14
+var n = 22
 
 func TestDKGHappyFlow(t *testing.T) {
 	for _, curve := range curves {
 
 		// == Commit phase ==
+		skEncAll := make([]*big.Int, n)
+		pkEncAll := make([]Point, n)
+
+		// Generate sks and pks for all participants for encryption/decryption purposes
+		for participant := 0; participant < n; participant++ {
+			skEncAll[participant], pkEncAll[participant], _, _ = CoefficientGen(curve)
+		}
+
 		coefsAll := make([][]*big.Int, n)
 		commitG1All := make([][]Point, n)
 		commitG2All := make([][]Point, n)
-		commitPrvAll := make([][]*big.Int, n) // private commit of participant to all
+		commitPrvAll := make([][]*big.Int, n)    // private commit of participant to all
+		commitPrvAllEnc := make([][]*big.Int, n) // encrypted version of the above
+
 		// Generate coefficients and public commitments for each participant
 		for participant := 0; participant < n; participant++ {
 
@@ -29,6 +39,8 @@ func TestDKGHappyFlow(t *testing.T) {
 			commitG1 := make([]Point, threshold+1)
 			commitG2 := make([]Point, threshold+1)
 			commitPrv := make([]*big.Int, n)
+			commitPrvEnc := make([]*big.Int, n)
+
 			for i := 0; i < threshold+1; i++ {
 				var err error
 				coefs[i], commitG1[i], commitG2[i], err = CoefficientGen(curve)
@@ -36,24 +48,54 @@ func TestDKGHappyFlow(t *testing.T) {
 				assert.True(t, VerifyPublicCommitment(curve, commitG1[i], commitG2[i]), "commit G1 and G2 fail")
 			}
 
+			sk := skEncAll[participant]
 			j := big.NewInt(1)
 			for i := 0; i < n; i++ {
 				commitPrv[i] = GetPrivateCommitment(curve, j, coefs)
+				if i != participant { // skip own commitments
+					commitPrvEnc[i] = Encrypt(curve, sk, pkEncAll[i], big.NewInt(0).Set(commitPrv[i]))
+				}
 				j.Add(j, big.NewInt(1))
 			}
+
 			coefsAll[participant] = coefs
 			commitG1All[participant] = commitG1
 			commitG2All[participant] = commitG2
 			commitPrvAll[participant] = commitPrv
+			commitPrvAllEnc[participant] = commitPrvEnc
 		}
 
 		// == Verify phase ==
+
+		commitPrvAllDec := make([][]*big.Int, n)
+		// First decrypt
+		for committedParticipant := 0; committedParticipant < n; committedParticipant++ {
+			pk := pkEncAll[committedParticipant]
+			commitPrvDec := make([]*big.Int, n)
+			for participant := 0; participant < n; participant++ {
+				if committedParticipant != participant {
+					sk := skEncAll[participant]
+					enc := big.NewInt(0).Set(commitPrvAllEnc[committedParticipant][participant])
+					commitPrvDec[participant] =
+						Decrypt(curve, sk, pk, enc)
+					assert.True(t,
+						commitPrvDec[participant].Cmp(commitPrvAll[committedParticipant][participant]) == 0,
+						"commitment is not the same after decryption")
+				} else {
+					commitPrvDec[participant] = commitPrvAll[committedParticipant][participant] // personal data
+				}
+			}
+			commitPrvAllDec[committedParticipant] = commitPrvDec
+		}
+
 		j := big.NewInt(1)
 		for participant := 0; participant < n; participant++ {
 			for commitParticipant := 0; commitParticipant < n; commitParticipant++ {
-				prv := commitPrvAll[commitParticipant][participant]
-				pub := commitG1All[commitParticipant]
-				assert.True(t, VerifyPrivateCommitment(curve, j, prv, pub), "private commit doesnt match public commit")
+				if participant != commitParticipant {
+					prv := commitPrvAllDec[commitParticipant][participant]
+					pub := commitG1All[commitParticipant]
+					assert.True(t, VerifyPrivateCommitment(curve, j, prv, pub), "private commit doesnt match public commit")
+				}
 			}
 			j.Add(j, big.NewInt(1))
 		}
@@ -69,7 +111,7 @@ func TestDKGHappyFlow(t *testing.T) {
 			pubCommitG2Zero[participant] = commitG2All[participant][0]
 			prvCommit := make([]*big.Int, n)
 			for commitParticipant := 0; commitParticipant < n; commitParticipant++ {
-				prvCommit[commitParticipant] = commitPrvAll[commitParticipant][participant]
+				prvCommit[commitParticipant] = commitPrvAllDec[commitParticipant][participant]
 			}
 			skAll[participant] = GetSecretKey(prvCommit)
 		}
@@ -149,9 +191,9 @@ func TestEncryptionDecryption(t *testing.T) {
 		// coef := big.NewInt(102280324260302)
 		// coef, _ := big.NewInt(0).SetString("1430352996282437468369", 10)
 		coef, _ := rand.Int(rand.Reader, curve.GetG1Order())
-		enc := encrypt(curve, skEnc, pkDec, coef)
+		enc := Encrypt(curve, skEnc, pkDec, coef)
 		// fmt.Printf("Enc data:  %v\n", enc.Text(16))
-		dec := decrypt(curve, skDec, pkEnc, enc)
+		dec := Decrypt(curve, skDec, pkEnc, enc)
 		assert.True(t, dec.Cmp(coef) == 0, "decryption did not return the same encrypted data")
 	}
 }
